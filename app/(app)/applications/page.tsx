@@ -1,16 +1,30 @@
-import { createClient } from "@/lib/supabase/server";
+import { getApplicationsWithOwners, resolvePersonFilter } from "@/lib/workspace";
 import ApplicationsView from "@/components/ApplicationsView";
-import type { Application } from "@/lib/types";
 
-export default async function ApplicationsPage() {
-  const supabase = createClient();
+export default async function ApplicationsPage({
+  searchParams,
+}: {
+  searchParams: { person?: string };
+}) {
+  const { applications, profiles, allProfiles, currentUserId } = await getApplicationsWithOwners({
+    orderAscending: false,
+  });
 
-  const { data } = await supabase
-    .from("applications")
-    .select("*")
-    .order("applied_date", { ascending: false });
+  const personFilter = resolvePersonFilter(searchParams.person, allProfiles, currentUserId);
+  const filteredApplications =
+    personFilter === "all"
+      ? applications
+      : applications.filter(
+          (a) => a.owner.display_name.toLowerCase() === personFilter.toLowerCase()
+        );
 
-  const applications = (data ?? []) as Application[];
-
-  return <ApplicationsView applications={applications} />;
+  return (
+    <ApplicationsView
+      applications={filteredApplications}
+      currentUserId={currentUserId}
+      showOwner={personFilter === "all"}
+      personFilter={personFilter}
+      profiles={profiles}
+    />
+  );
 }

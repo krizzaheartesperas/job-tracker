@@ -53,3 +53,21 @@ export type ApplicationInput = Omit<
   Application,
   "id" | "user_id" | "created_at" | "updated_at"
 >;
+
+export interface Profile {
+  id: string;
+  user_id: string;
+  display_name: string;
+  accent_color: string;
+  created_at: string;
+}
+
+export interface OwnerInfo {
+  display_name: string;
+  accent_color: string;
+  user_id: string;
+}
+
+export interface ApplicationWithOwner extends Application {
+  owner: OwnerInfo;
+}

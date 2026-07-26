@@ -2,18 +2,21 @@
 
 import { format, parseISO } from "date-fns";
 import clsx from "clsx";
-import { STATUS_LABELS, STATUS_COLORS, type Application } from "@/lib/types";
+import { STATUS_LABELS, STATUS_COLORS, type ApplicationWithOwner } from "@/lib/types";
 
 export default function ApplicationViewModal({
   application,
+  currentUserId,
   onClose,
   onEdit,
 }: {
-  application: Application;
+  application: ApplicationWithOwner;
+  currentUserId: string | null;
   onClose: () => void;
   onEdit: () => void;
 }) {
   const colors = STATUS_COLORS[application.status];
+  const isOwn = currentUserId === application.user_id;
 
   return (
     <div
@@ -27,16 +30,31 @@ export default function ApplicationViewModal({
         <div className={clsx("p-6 border-b border-border relative overflow-hidden", colors.bg)}>
           <div className="relative z-10">
             <div className="flex justify-between items-start mb-4">
-              <span
-                className={clsx(
-                  "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold tracking-wide border bg-surface/50 backdrop-blur-sm",
-                  colors.text,
-                  colors.border
-                )}
-              >
-                <span className={clsx("w-1.5 h-1.5 rounded-full", colors.dot)} />
-                {STATUS_LABELS[application.status]}
-              </span>
+              <div className="flex items-center gap-2">
+                <span
+                  className={clsx(
+                    "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold tracking-wide border bg-surface/50 backdrop-blur-sm",
+                    colors.text,
+                    colors.border
+                  )}
+                >
+                  <span className={clsx("w-1.5 h-1.5 rounded-full", colors.dot)} />
+                  {STATUS_LABELS[application.status]}
+                </span>
+
+                {/* Owner badge */}
+                <span
+                  className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-full text-xs font-semibold tracking-wide bg-surface/50 backdrop-blur-sm border border-border/50"
+                >
+                  <span
+                    className="w-4 h-4 rounded-full text-white text-[8px] font-bold flex items-center justify-center"
+                    style={{ backgroundColor: application.owner.accent_color }}
+                  >
+                    {application.owner.display_name[0]}
+                  </span>
+                  <span className="text-ink/70">{application.owner.display_name}</span>
+                </span>
+              </div>
               
               <button onClick={onClose} className="text-inkSoft hover:text-ink transition-colors p-1 bg-surface/50 rounded-full backdrop-blur-sm">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
@@ -105,12 +123,18 @@ export default function ApplicationViewModal({
 
         <div className="p-6 border-t border-border bg-surfaceMuted/10 mt-auto flex justify-between items-center">
           <p className="text-xs text-inkSoft">Last updated {format(new Date(application.updated_at), "MMM d, yyyy")}</p>
-          <button 
-            onClick={onEdit} 
-            className="btn-primary"
-          >
-            Edit Application
-          </button>
+          {isOwn ? (
+            <button 
+              onClick={onEdit} 
+              className="btn-primary"
+            >
+              Edit Application
+            </button>
+          ) : (
+            <span className="text-xs text-inkSoft italic">
+              Only {application.owner.display_name} can edit this
+            </span>
+          )}
         </div>
       </div>
     </div>

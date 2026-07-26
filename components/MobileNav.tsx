@@ -1,19 +1,35 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import clsx from "clsx";
+import type { Profile } from "@/lib/types";
+import PersonSwitcher from "@/components/PersonSwitcher";
 
 const links = [
   { href: "/dashboard", label: "Dashboard" },
   { href: "/applications", label: "Applications" },
 ];
 
-export default function MobileNav({ email }: { email: string }) {
+export default function MobileNav({
+  email,
+  profiles,
+  currentUserId,
+  defaultPersonKey,
+}: {
+  email: string;
+  profiles: Profile[];
+  currentUserId: string | null;
+  defaultPersonKey: string | null;
+}) {
   const pathname = usePathname();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const supabase = createClient();
+
+  const personQs = searchParams.get("person");
+  const querySuffix = personQs ? `?person=${encodeURIComponent(personQs)}` : "";
 
   async function handleSignOut() {
     await supabase.auth.signOut();
@@ -36,7 +52,7 @@ export default function MobileNav({ email }: { email: string }) {
         {links.map((link) => (
           <Link
             key={link.href}
-            href={link.href}
+            href={`${link.href}${querySuffix}`}
             className={clsx(
               "flex-1 text-center px-3 py-2 rounded-md text-sm font-medium",
               pathname === link.href ? "bg-ink text-white" : "text-inkSoft bg-surfaceMuted"
@@ -46,6 +62,16 @@ export default function MobileNav({ email }: { email: string }) {
           </Link>
         ))}
       </nav>
+      {profiles.length > 0 && (
+        <div className="mt-3">
+          <PersonSwitcher
+            profiles={profiles}
+            currentUserId={currentUserId}
+            defaultPersonKey={defaultPersonKey}
+            layout="horizontal"
+          />
+        </div>
+      )}
       <p className="text-[11px] text-inkSoft mt-2 truncate">{email}</p>
     </header>
   );

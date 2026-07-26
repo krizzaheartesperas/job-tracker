@@ -3,18 +3,22 @@
 import { useState } from "react";
 import { format, parseISO } from "date-fns";
 import clsx from "clsx";
-import { STATUS_COLORS, STATUS_LABELS, type Application } from "@/lib/types";
+import { STATUS_COLORS, STATUS_LABELS, type ApplicationWithOwner } from "@/lib/types";
 
 type SortKey = "company" | "applied_date" | "follow_up_date" | "status";
 
 export default function ApplicationsTable({
   applications,
+  currentUserId,
+  showOwner,
   onSelect,
   onEdit,
 }: {
-  applications: Application[];
-  onSelect: (app: Application) => void;
-  onEdit: (app: Application) => void;
+  applications: ApplicationWithOwner[];
+  currentUserId: string | null;
+  showOwner: boolean;
+  onSelect: (app: ApplicationWithOwner) => void;
+  onEdit: (app: ApplicationWithOwner) => void;
 }) {
   const [sortKey, setSortKey] = useState<SortKey>("applied_date");
   const [sortDir, setSortDir] = useState<"asc" | "desc">("desc");
@@ -73,6 +77,11 @@ export default function ApplicationsTable({
                   </div>
                 </th>
               ))}
+              {showOwner && (
+                <th className="text-left px-5 py-4 font-semibold text-inkSoft text-xs uppercase tracking-wider whitespace-nowrap">
+                  Owner
+                </th>
+              )}
             </tr>
           </thead>
           <tbody className="divide-y divide-border/60">
@@ -119,6 +128,19 @@ export default function ApplicationsTable({
                     <span className="text-inkSoft/50">—</span>
                   )}
                 </td>
+                {showOwner && (
+                  <td className="px-5 py-4 whitespace-nowrap">
+                    <div className="flex items-center gap-2">
+                      <span
+                        className="w-5 h-5 rounded-full text-white text-[9px] font-bold flex items-center justify-center shrink-0"
+                        style={{ backgroundColor: app.owner.accent_color }}
+                      >
+                        {app.owner.display_name[0]}
+                      </span>
+                      <span className="text-xs font-medium text-ink">{app.owner.display_name}</span>
+                    </div>
+                  </td>
+                )}
               </tr>
             );
           })}

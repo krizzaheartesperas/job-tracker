@@ -1,8 +1,14 @@
 import { differenceInCalendarDays, parseISO, format } from "date-fns";
-import type { Application } from "@/lib/types";
+import type { ApplicationWithOwner } from "@/lib/types";
 import clsx from "clsx";
 
-export default function UpcomingFollowUps({ applications }: { applications: Application[] }) {
+export default function UpcomingFollowUps({
+  applications,
+  showOwner = false,
+}: {
+  applications: ApplicationWithOwner[];
+  showOwner?: boolean;
+}) {
   const today = new Date();
   const upcoming = applications
     .filter((a) => a.follow_up_date && !["rejected", "withdrawn"].includes(a.status))
@@ -24,13 +30,24 @@ export default function UpcomingFollowUps({ applications }: { applications: Appl
         <ul className="space-y-3">
           {upcoming.map(({ app, days }) => (
             <li key={app.id} className="flex items-center justify-between gap-3">
-              <div className="min-w-0">
-                <p className="text-sm font-medium text-ink truncate">
-                  {app.role} · {app.company}
-                </p>
-                <p className="text-xs text-inkSoft">
-                  {format(parseISO(app.follow_up_date as string), "EEE, MMM d")}
-                </p>
+              <div className="min-w-0 flex items-center gap-2.5">
+                {showOwner && (
+                  <span
+                    className="w-5 h-5 rounded-full text-white text-[9px] font-bold flex items-center justify-center shrink-0"
+                    style={{ backgroundColor: app.owner.accent_color }}
+                    title={app.owner.display_name}
+                  >
+                    {app.owner.display_name[0]}
+                  </span>
+                )}
+                <div className="min-w-0">
+                  <p className="text-sm font-medium text-ink truncate">
+                    {app.role} · {app.company}
+                  </p>
+                  <p className="text-xs text-inkSoft">
+                    {format(parseISO(app.follow_up_date as string), "EEE, MMM d")}
+                  </p>
+                </div>
               </div>
               <span
                 className={clsx(

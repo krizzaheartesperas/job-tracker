@@ -1,8 +1,9 @@
 # Trailhead — Job Application Tracker
 
-A small Next.js + TypeScript + Supabase app for tracking job applications, built for
-two people (or more) who each want their own private list. Table view, Kanban view,
-a dashboard with charts, and a follow-up reminder widget.
+A small Next.js + TypeScript + Supabase app for tracking job applications, built as a
+**shared workspace** for two people (Kei and Meredith). Each of you has your own
+filtered view by default, but you can switch to see each other's applications or
+view everything together.
 
 ## Stack
 
@@ -17,9 +18,11 @@ a dashboard with charts, and a follow-up reminder widget.
 1. Go to [supabase.com](https://supabase.com) → New project.
 2. Once it's created, open **SQL Editor** → New query, paste the contents of
    [`supabase/schema.sql`](./supabase/schema.sql), and run it. This creates the
-   `applications` table plus Row Level Security policies so each signed-in user
-   only ever sees their own rows.
-3. Go to **Project Settings → API** and copy:
+   `applications` table plus Row Level Security policies.
+3. If you already ran the original schema, also run
+   [`supabase/shared_workspace_migration.sql`](./supabase/shared_workspace_migration.sql)
+   to enable the shared workspace (profiles table, read-all policy, Kei + Meredith seeds).
+4. Go to **Project Settings → API** and copy:
    - `Project URL`
    - `anon public` key
 
@@ -53,8 +56,18 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000). You'll land on the login page —
 create an account, confirm your email (Supabase sends a confirmation link by
-default), then sign in. Have your friend do the same with their own email; each of
-you only sees your own applications.
+default), then sign in. Have Meredith do the same with her own email.
+
+## Shared workspace
+
+- **Your view (default)** — when you sign in, you see only your own applications.
+  Dashboard stats, charts, and follow-ups are scoped to you.
+- **Switch person** — use the **Viewing** toggle in the sidebar (or mobile header)
+  to switch between **Kei**, **Meredith**, or **All**.
+- **Read-only for others** — you can open and read each other's applications, but
+  only edit or drag your own cards on the Kanban board.
+- **Owner badges** — when viewing **All**, each application shows a colored dot
+  with the owner's initial so you can tell who applied where.
 
 ## 4. Deploy to Vercel
 
@@ -77,10 +90,9 @@ to production instead of `localhost`.
 - **Applications** — add, edit, and delete applications; switch between a Kanban
   board (drag a card to change its status) and a sortable/searchable table;
   filter by status or search by company/role.
-- **Auth** — email/password sign-up and sign-in via Supabase Auth. Every
-  application row is tied to the user who created it and protected by Postgres
-  Row Level Security, so there's no way for one user's data to leak into the
-  other's, even via a bug in the app code.
+- **Auth** — email/password sign-up and sign-in via Supabase Auth. Applications are
+  owned by the user who created them; Postgres Row Level Security lets both of you
+  read all applications but only insert/update/delete your own.
 
 ## Extending it later
 
@@ -110,7 +122,8 @@ lib/
   actions.ts          server actions (create/update/delete)
   types.ts             shared TypeScript types
 supabase/
-  schema.sql           run this once in the Supabase SQL editor
+  schema.sql                        run this once in the Supabase SQL editor
+  shared_workspace_migration.sql    run this to enable the shared workspace
 middleware.ts          redirects signed-out users to /login
 ```
 
