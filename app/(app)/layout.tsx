@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { getAllProfiles, getWorkspaceProfiles, resolveCurrentWorkspaceProfile } from "@/lib/workspace";
 import Sidebar from "@/components/Sidebar";
 import MobileNav from "@/components/MobileNav";
+import WelcomePopup from "@/components/WelcomePopup";
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
   const supabase = createClient();
@@ -18,6 +19,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
 
   return (
     <div className="min-h-screen flex bg-bg">
+      <WelcomePopup />
       <Suspense fallback={<aside className="hidden md:flex md:flex-col w-64 shrink-0 border-r border-border bg-surface" />}>
         <Sidebar
           email={user?.email ?? ""}
