@@ -10,6 +10,7 @@ import PersonSwitcher from "@/components/PersonSwitcher";
 const links = [
   { href: "/dashboard", label: "Dashboard", icon: DashboardIcon },
   { href: "/applications", label: "Applications", icon: ListIcon },
+  { href: "/interview", label: "Mock Interview", icon: InterviewIcon },
 ];
 
 export default function Sidebar({
@@ -141,6 +142,21 @@ function ListIcon({ className }: { className?: string }) {
       <rect x="3" y="4" width="18" height="4.5" rx="1.5" stroke="currentColor" strokeWidth="1.8" />
       <rect x="3" y="10.5" width="18" height="4.5" rx="1.5" stroke="currentColor" strokeWidth="1.8" />
       <rect x="3" y="17" width="18" height="4.5" rx="1.5" stroke="currentColor" strokeWidth="1.8" />
+    </svg>
+  );
+}
+
+function InterviewIcon({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" className={className}>
+      <rect x="4" y="4" width="16" height="16" rx="2" stroke="currentColor" strokeWidth="1.8" />
+      <path
+        d="M8 9h8M8 13h5M15 17l2-2"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
     </svg>
   );
 }

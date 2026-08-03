@@ -71,3 +71,28 @@ export interface OwnerInfo {
 export interface ApplicationWithOwner extends Application {
   owner: OwnerInfo;
 }
+
+export interface InterviewQuestion {
+  id: string;
+  user_id: string;
+  category: string;
+  prompt: string;
+  focus: string | null;
+  source: "manual" | "resume";
+  created_at: string;
+  updated_at: string;
+}
+
+export type InterviewQuestionInput = Pick<
+  InterviewQuestion,
+  "category" | "prompt" | "focus"
+>;
+
+export interface ResumeProfile {
+  id: string;
+  user_id: string;
+  filename: string | null;
+  resume_text: string;
+  created_at: string;
+  updated_at: string;
+}

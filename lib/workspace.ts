@@ -1,5 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
-import type { Application, ApplicationWithOwner, Profile } from "@/lib/types";
+import type { Application, ApplicationWithOwner, InterviewQuestion, Profile, ResumeProfile } from "@/lib/types";
 
 /** Canonical workspace members shown in the person switcher. */
 export const WORKSPACE_MEMBERS = [
@@ -167,4 +167,34 @@ export async function getApplicationsWithOwners(options?: {
     allProfiles,
     currentUserId: user?.id ?? null,
   };
+}
+
+export async function getInterviewQuestions(): Promise<InterviewQuestion[]> {
+  const supabase = createClient();
+
+  const { data, error } = await supabase
+    .from("interview_questions")
+    .select("*")
+    .order("created_at", { ascending: true });
+
+  if (error) return [];
+  return (data ?? []) as InterviewQuestion[];
+}
+
+export async function getCurrentResume(): Promise<ResumeProfile | null> {
+  const supabase = createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) return null;
+
+  const { data, error } = await supabase
+    .from("resumes")
+    .select("*")
+    .eq("user_id", user.id)
+    .maybeSingle();
+
+  if (error) return null;
+  return (data ?? null) as ResumeProfile | null;
 }

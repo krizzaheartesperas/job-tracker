@@ -10,6 +10,7 @@ import PersonSwitcher from "@/components/PersonSwitcher";
 const links = [
   { href: "/dashboard", label: "Dashboard" },
   { href: "/applications", label: "Applications" },
+  { href: "/interview", label: "Interview" },
 ];
 
 export default function MobileNav({
