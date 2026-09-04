@@ -6,6 +6,7 @@ import ApplicationsTable from "@/components/ApplicationsTable";
 import KanbanBoard from "@/components/KanbanBoard";
 import ApplicationModal from "@/components/ApplicationModal";
 import ApplicationViewModal from "@/components/ApplicationViewModal";
+import EmailImportModal from "@/components/EmailImportModal";
 import { STATUS_LABELS, STATUSES, type ApplicationWithOwner, type Profile, type Status } from "@/lib/types";
 
 export default function ApplicationsView({
@@ -27,6 +28,7 @@ export default function ApplicationsView({
 
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [viewModalOpen, setViewModalOpen] = useState(false);
+  const [emailImportOpen, setEmailImportOpen] = useState(false);
   const [selectedApp, setSelectedApp] = useState<ApplicationWithOwner | undefined>(undefined);
 
   const filtered = useMemo(() => {
@@ -111,12 +113,20 @@ export default function ApplicationsView({
               </p>
             )}
           </div>
-          <button
-            onClick={openNew}
-            className="btn-primary shadow-soft hover:shadow-softLg transition-shadow shrink-0"
-          >
-            + Add application
-          </button>
+          <div className="flex items-center gap-2 shrink-0">
+            <button
+              onClick={() => setEmailImportOpen(true)}
+              className="btn-ghost shadow-soft hover:shadow-softLg transition-shadow"
+            >
+              Import from email
+            </button>
+            <button
+              onClick={openNew}
+              className="btn-primary shadow-soft hover:shadow-softLg transition-shadow"
+            >
+              + Add application
+            </button>
+          </div>
         </div>
 
         {/* Toolbar */}
@@ -215,6 +225,10 @@ export default function ApplicationsView({
           onClose={() => setViewModalOpen(false)}
           onEdit={() => openEdit(selectedApp)}
         />
+      )}
+
+      {emailImportOpen && (
+        <EmailImportModal onClose={() => setEmailImportOpen(false)} />
       )}
     </div>
   );
