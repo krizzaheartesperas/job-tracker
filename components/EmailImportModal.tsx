@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import clsx from "clsx";
 import { STATUS_LABELS, type Status } from "@/lib/types";
@@ -25,34 +25,37 @@ export default function EmailImportModal({ onClose }: { onClose: () => void }) {
   const [result, setResult] = useState<Result | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
-  async function processFile(file: File) {
-    setError("");
-    setResult(null);
-    setPreviewUrl(URL.createObjectURL(file));
-    setIsProcessing(true);
+  const processFile = useCallback(
+    async (file: File) => {
+      setError("");
+      setResult(null);
+      setPreviewUrl(URL.createObjectURL(file));
+      setIsProcessing(true);
 
-    try {
-      const formData = new FormData();
-      formData.append("image", file);
+      try {
+        const formData = new FormData();
+        formData.append("image", file);
 
-      const res = await fetch("/api/parse-email-screenshot", {
-        method: "POST",
-        body: formData,
-      });
-      const data = await res.json();
+        const res = await fetch("/api/parse-email-screenshot", {
+          method: "POST",
+          body: formData,
+        });
+        const data = await res.json();
 
-      if (!res.ok) {
-        throw new Error(data.error ?? "Something went wrong reading that screenshot.");
+        if (!res.ok) {
+          throw new Error(data.error ?? "Something went wrong reading that screenshot.");
+        }
+
+        setResult(data as Result);
+        router.refresh();
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Something went wrong.");
+      } finally {
+        setIsProcessing(false);
       }
-
-      setResult(data as Result);
-      router.refresh();
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Something went wrong.");
-    } finally {
-      setIsProcessing(false);
-    }
-  }
+    },
+    [router]
+  );
 
   function handleDrop(event: React.DragEvent<HTMLDivElement>) {
     event.preventDefault();
@@ -92,7 +95,7 @@ export default function EmailImportModal({ onClose }: { onClose: () => void }) {
 
     window.addEventListener("paste", handlePaste);
     return () => window.removeEventListener("paste", handlePaste);
-  }, [isProcessing]);
+  }, [isProcessing, processFile]);
 
   return (
     <div
@@ -108,7 +111,7 @@ export default function EmailImportModal({ onClose }: { onClose: () => void }) {
         </h2>
         <p className="text-sm text-inkSoft mb-5">
           Drop, browse, or paste (Ctrl+V) a screenshot of an application confirmation, interview
-          invite, or rejection — it'll extract the details and update your tracker automatically.
+          invite, or rejection — it&apos;ll extract the details and update your tracker automatically.
         </p>
 
         {!result && (
